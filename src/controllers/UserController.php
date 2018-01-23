@@ -3,14 +3,15 @@
  * Created by PhpStorm.
  * User: njerucyrus
  * Date: 1/23/18
- * Time: 12:20 PM
+ * Time: 5:23 PM
  */
 
 namespace src\controllers;
 
+
 use src\db\DB;
 
-class PurchasesController implements CrudInterface
+class UserController implements CrudInterface
 {
     protected $conn;
     protected $db;
@@ -21,32 +22,24 @@ class PurchasesController implements CrudInterface
         $this->conn = $this->db->connect();
     }
 
-
     public function create($data)
     {
         try {
             $stmt = $this->conn
-                ->prepare("INSERT INTO purchases(payee_name, phone_number,
-                          payment_description, authorised_by,receipt_no, vat_no,
-                          kra_pin_no,product_names, amount_paid) VALUES (:payee_name,
-                           :phone_number,:payment_description, :authorised_by,:receipt_no,
-                           :vat_no,:kra_pin_no,:product_names, :amount_paid)");
+                ->prepare("INSERT INTO grade_a_db.users(fullname, email, phone_number, password) 
+                              VALUES (:fullname, :email, :phone_number, :password)");
 
-            $stmt->bindValue(":payee_name", $data['payee_name']);
+            $stmt->bindValue(":fullname", $data['fullname']);
+            $stmt->bindValue(":email", $data['email']);
             $stmt->bindValue(":phone_number", $data['phone_number']);
-            $stmt->bindValue(":payment_description", $data['payment_description']);
-            $stmt->bindValue(":authorised_by", $data['authorised_by']);
-            $stmt->bindValue(":receipt_no", $data['receipt_no']);
-            $stmt->bindValue(":vat_no", $data['vat_no']);
-            $stmt->bindValue(":kra_pin_no", $data['kra_pin_no']);
-            $stmt->bindValue(":product_names", $data['product_names']);
-            $stmt->bindValue(":amount_paid", $data['amount_paid']);
+            $stmt->bindValue(":password", password_hash($data['password'], PASSWORD_BCRYPT));
+
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
                 $this->db->closeConnection();
                 return [
                     "status_code" => 201,
-                    "message" => "Transaction Recorded Successfully"
+                    "message" => "User Account Created Successfully"
                 ];
 
             } else {
@@ -68,27 +61,19 @@ class PurchasesController implements CrudInterface
     public function update($data)
     {
         try {
-            $stmt = $this->conn->prepare("UPDATE purchases SET payee_name=:payee_name,
-                           phone_number=:phone_number,payment_description=:payment_description, 
-                           authorised_by=:authorised_by,receipt_no=:receipt_no,vat_no=:vat_no,
-                           kra_pin_no=:kra_pin_no,product_names=:product_names,
-                           amount_paid=:amount_paid WHERE id=:id");
+            $stmt = $this->conn->prepare("UPDATE grade_a_db.users SET fullname =:fullname,
+                                          email=:email,phone_number=:phone_number WHERE id=:id");
             $stmt->bindValue(":id", $data['id']);
-            $stmt->bindValue(":payee_name", $data['payee_name']);
+            $stmt->bindValue(":fullname", $data['fullname']);
+            $stmt->bindValue(":email", $data['email']);
             $stmt->bindValue(":phone_number", $data['phone_number']);
-            $stmt->bindValue(":payment_description", $data['payment_description']);
-            $stmt->bindValue(":authorised_by", $data['authorised_by']);
-            $stmt->bindValue(":receipt_no", $data['receipt_no']);
-            $stmt->bindValue(":vat_no", $data['vat_no']);
-            $stmt->bindValue(":kra_pin_no", $data['kra_pin_no']);
-            $stmt->bindValue(":product_names", $data['product_names']);
-            $stmt->bindValue(":amount_paid", $data['amount_paid']);
+
 
             if ($stmt->execute()) {
                 $this->db->closeConnection();
                 return [
                     "status_code" => 201,
-                    "message" => "Transaction Updated Successfully"
+                    "message" => "User Account Info Successfully"
                 ];
             } else {
                 return [
@@ -110,7 +95,7 @@ class PurchasesController implements CrudInterface
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("DELETE FROM purchases WHERE id=:id");
+                ->prepare("DELETE FROM grade_a_db.users WHERE id=:id");
             $stmt->bindParam(":id", $id);
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
@@ -118,7 +103,7 @@ class PurchasesController implements CrudInterface
 
                 return [
                     "status_code" => 201,
-                    "message" => "Transaction Record deleted Successfully"
+                    "message" => "Account Deleted Successfully"
                 ];
             } else {
                 return [
@@ -140,7 +125,7 @@ class PurchasesController implements CrudInterface
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("SELECT * FROM purchases WHERE id=:id LIMIT 1");
+                ->prepare("SELECT * FROM grade_a_db.users WHERE id=:id LIMIT 1");
             $stmt->bindParam(":id", $id);
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
@@ -169,7 +154,7 @@ class PurchasesController implements CrudInterface
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("SELECT * FROM purchases WHERE  1");
+                ->prepare("SELECT * FROM grade_a_db.users WHERE  1");
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
                 (new self)->db->closeConnection();
@@ -193,35 +178,5 @@ class PurchasesController implements CrudInterface
         }
     }
 
-    public static function filterByDate($date)
-    {
-        try {
-            $stmt = (new self)->conn
-                ->prepare("SELECT * FROM purchases WHERE  DATE(date_paid)=:date_paid");
-            $stmt->bindValue(":date_paid", $date);
-
-            if ($stmt->execute() && $stmt->rowCount() > 0) {
-
-                (new self)->db->closeConnection();
-
-                return [
-                    "status_code" => 200,
-                    "data" => $stmt->fetchAll(\PDO::FETCH_ASSOC)
-                ];
-            } else {
-                return [
-                    "status_code" => 500,
-                    "message" => "No matching record"
-                ];
-            }
-
-
-        } catch (\PDOException $e) {
-            return [
-                "status_code" => 500,
-                "message" => "Error occurred => {$e->getMessage()}"
-            ];
-        }
-    }
 
 }
