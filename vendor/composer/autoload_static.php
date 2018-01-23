@@ -24,6 +24,7 @@ class ComposerStaticInitf45a077e386f7a8be7109b543f7c9f08
         'src\\controllers\\Auth' => __DIR__ . '/../..' . '/src/controllers/Auth.php',
         'src\\controllers\\CrudInterface' => __DIR__ . '/../..' . '/src/controllers/CrudInterface.php',
         'src\\controllers\\PurchasesController' => __DIR__ . '/../..' . '/src/controllers/PurchasesController.php',
+        'src\\controllers\\UserController' => __DIR__ . '/../..' . '/src/controllers/UserController.php',
         'src\\db\\DB' => __DIR__ . '/../..' . '/src/db/DB.php',
     );
 

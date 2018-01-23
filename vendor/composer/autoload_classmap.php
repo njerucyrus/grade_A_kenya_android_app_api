@@ -9,5 +9,6 @@ return array(
     'src\\controllers\\Auth' => $baseDir . '/src/controllers/Auth.php',
     'src\\controllers\\CrudInterface' => $baseDir . '/src/controllers/CrudInterface.php',
     'src\\controllers\\PurchasesController' => $baseDir . '/src/controllers/PurchasesController.php',
+    'src\\controllers\\UserController' => $baseDir . '/src/controllers/UserController.php',
     'src\\db\\DB' => $baseDir . '/src/db/DB.php',
 );
