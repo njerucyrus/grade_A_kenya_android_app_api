@@ -14,10 +14,9 @@ trait Auth
 {
     public static function authenticate($username, $password)
     {
-        $db = new DB();
         try {
-            $stmt = $db->connect()
-                ->prepare("SELECT * FROM users WHERE username=:username LIMIT 1");
+            $stmt = (new self)->conn
+                ->prepare("SELECT * FROM grade_a_db.users WHERE phone_number=:username OR email=:username LIMIT 1");
             $stmt->bindParam(":username", $username);
 
             $stmt->execute();
@@ -28,13 +27,13 @@ trait Auth
                 $row = $stmt->fetch(\PDO::FETCH_ASSOC);
                 if (password_verify($password, $row['password'])) {
                     $response = [
-                        "status" => "success",
+                        "status" => 201,
                         "message" => "Login Successful",
                         "data" =>$row
                     ];
                 } else {
                     $response = [
-                        "status" => "error",
+                        "status" => 500,
                         "message" => "Invalid Credentials supplied",
                         "data" => [
                             "username" => "",
@@ -44,7 +43,7 @@ trait Auth
                 }
             } else {
                 $response = [
-                    "status" => "error",
+                    "status" => 500,
                     "message" => "Invalid.. Credentials supplied",
                     "data" => [
                         "username" => "",
@@ -69,21 +68,6 @@ trait Auth
 
     public static function changePassword($data)
     {
-        //perform the checks to ensure data passed is an array
-        //and contains the expected keys.
-        if (!is_array($data)) {
-            throw new \UnexpectedValueException("The parameter passed must be an array");
-        }
-        if (!array_key_exists("old_password", $data)) {
-            throw new \UnexpectedValueException("missing old_password key in the array passed");
-        }
-        if (!array_key_exists("new_password", $data)) {
-            throw new \UnexpectedValueException("missing new_password key in the array passed");
-        }
-        if (!array_key_exists("username", $data)) {
-            throw new \UnexpectedValueException("missing username key in the array passed");
-        }
-
         $response = null;
         $auth = self::authenticate($data['username'], $data['old_password']);
 
@@ -91,7 +75,7 @@ trait Auth
             $response = self::updatePassword($data['username'], $data['new_password']);
         } else {
             $response = [
-                "status" => "error",
+                "status" => 500,
                 "message" => "Invalid old credentials please try again latter"
             ];
         }
@@ -101,28 +85,28 @@ trait Auth
     public static function updatePassword($username, $newPassword)
     {
         try {
-            $db = new DB();
+
             $password_hash = password_hash($newPassword, PASSWORD_BCRYPT);
 
-            $stmt = $db->connect()
+            $stmt = (new self)->conn
                 ->prepare("UPDATE users SET password=:password WHERE username=:usermae");
             $stmt->bindParam(":username", $username);
             $stmt->bindParam(":password", $password_hash);
             $query = $stmt->execute();
             if ($query) {
                 return [
-                    "status" => "success",
+                    "status" => 201,
                     "message" => "Password Changed successfully Successfully "
                 ];
             } else {
                 return [
-                    "status" => "error",
+                    "status" => 500,
                     "message" => "Error Occurred While update your password {$stmt->errorInfo()[2]}"
                 ];
             }
         } catch (\PDOException $e) {
             return [
-                "status" => "error",
+                "status" => 500,
                 "message" => "Exception Error {$e->getMessage()}"
             ];
         }

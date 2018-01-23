@@ -13,6 +13,7 @@ use src\db\DB;
 
 class UserController implements CrudInterface
 {
+    use Auth;
     protected $conn;
     protected $db;
 
@@ -152,6 +153,7 @@ class UserController implements CrudInterface
 
     public static function all()
     {
+
         try {
             $stmt = (new self)->conn
                 ->prepare("SELECT * FROM grade_a_db.users WHERE  1");
