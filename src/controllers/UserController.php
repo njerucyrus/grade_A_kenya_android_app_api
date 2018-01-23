@@ -146,7 +146,7 @@ class UserController implements CrudInterface
         } catch (\PDOException $e) {
             return [
                 "status_code" => 500,
-                "message" => "Error occurred => {$e->getMessage()}"
+                "message" => "No matching record found"
             ];
         }
     }
@@ -167,7 +167,7 @@ class UserController implements CrudInterface
             } else {
                 return [
                     "status_code" => 500,
-                    "message" => "Error occurred => {$stmt->errorInfo()[2]}"
+                    "message" => "No records found"
                 ];
             }
 
