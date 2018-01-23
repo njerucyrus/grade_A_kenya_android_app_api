@@ -52,7 +52,7 @@ function create()
         }
 
         if (!empty($_REQUEST['action'] == 'change_password') and isset($_REQUEST['action'])) {
-            print_r(json_encode(UserController::changePassword($data_array));
+            print_r(json_encode(UserController::changePassword($data_array)));
         }
 
 
