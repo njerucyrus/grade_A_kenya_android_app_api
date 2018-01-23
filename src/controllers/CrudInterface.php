@@ -15,5 +15,5 @@ interface CrudInterface
     public function update($data);
     public static function delete($id);
     public static function getId($id);
-    public function all();
+    public static function all();
 }

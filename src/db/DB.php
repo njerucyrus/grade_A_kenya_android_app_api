@@ -13,7 +13,7 @@ class DB
     /**
      * @var string
      */
-    private $databaseName = 'smart_keja';
+    private $databaseName = 'grade_a_db';
     /**
      * @var string
      */
