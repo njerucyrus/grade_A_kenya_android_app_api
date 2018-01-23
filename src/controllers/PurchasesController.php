@@ -191,7 +191,7 @@ class PurchasesController implements CrudInterface
         }
     }
 
-    public static function getDayRecords($date)
+    public static function filterByDate($date)
     {
         try {
             $stmt = (new self)->conn
