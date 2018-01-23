@@ -10,11 +10,25 @@ namespace src\controllers;
 
 use src\db\DB;
 
+/**
+ * Class PurchasesController
+ * @package src\controllers
+ */
 class PurchasesController implements CrudInterface
 {
+    /**
+     * @var null|\PDO
+     */
     protected $conn;
+
+    /**
+     * @var DB
+     */
     protected $db;
 
+    /**
+     * PurchasesController constructor.
+     */
     public function __construct()
     {
         $this->db = new DB();
@@ -22,6 +36,10 @@ class PurchasesController implements CrudInterface
     }
 
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function create($data)
     {
         try {
@@ -65,6 +83,10 @@ class PurchasesController implements CrudInterface
         }
     }
 
+    /**
+     * @param $data
+     * @return array
+     */
     public function update($data)
     {
         try {
@@ -106,6 +128,10 @@ class PurchasesController implements CrudInterface
         }
     }
 
+    /**
+     * @param $id
+     * @return array
+     */
     public static function delete($id)
     {
         try {
@@ -136,6 +162,10 @@ class PurchasesController implements CrudInterface
         }
     }
 
+    /**
+     * @param $id
+     * @return array
+     */
     public static function getId($id)
     {
         try {
@@ -165,6 +195,9 @@ class PurchasesController implements CrudInterface
         }
     }
 
+    /**
+     * @return array
+     */
     public static function all()
     {
         try {
@@ -193,6 +226,10 @@ class PurchasesController implements CrudInterface
         }
     }
 
+    /**
+     * @param $date
+     * @return array
+     */
     public static function filterByDate($date)
     {
         try {
