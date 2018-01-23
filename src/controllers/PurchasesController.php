@@ -32,17 +32,17 @@ class PurchasesController implements CrudInterface
                            :phone_number,:payment_description, :authorised_by,:receipt_no,
                            :vat_no,:kra_pin_no,:product_names, :amount_paid)");
 
-            $stmt->bindParam(":payee_name", $data['payee_name']);
-            $stmt->bindParam(":phone_number", $data['phone_number']);
-            $stmt->bindParam(":payment_description", $data['payment_description']);
-            $stmt->bindParam(":authorised_by", $data['authorised_by']);
-            $stmt->bindParam(":receipt_no", $data['receipt_no']);
-            $stmt->bindParam(":vat_no", $data['vat_no']);
-            $stmt->bindParam(":kra_pin_no", $data['kra_pin_no']);
-            $stmt->bindParam(":product_names", $data['product_names']);
-            $stmt->bindParam(":amount_paid", $data['amount_paid']);
+            $stmt->bindValue(":payee_name", $data['payee_name']);
+            $stmt->bindValue(":phone_number", $data['phone_number']);
+            $stmt->bindValue(":payment_description", $data['payment_description']);
+            $stmt->bindValue(":authorised_by", $data['authorised_by']);
+            $stmt->bindValue(":receipt_no", $data['receipt_no']);
+            $stmt->bindValue(":vat_no", $data['vat_no']);
+            $stmt->bindValue(":kra_pin_no", $data['kra_pin_no']);
+            $stmt->bindValue(":product_names", $data['product_names']);
+            $stmt->bindValue(":amount_paid", $data['amount_paid']);
 
-            if ($stmt->execute()) {
+            if ($stmt->execute() && $stmt->rowCount() > 0) {
                 $this->db->closeConnection();
                 return [
                     "status_code" => 201,
@@ -52,7 +52,7 @@ class PurchasesController implements CrudInterface
             } else {
                 return [
                     "status_code" => 500,
-                    "message" => "Error occurred => {$stmt->errorInfo()}"
+                    "message" => "Error occurred => {$stmt->errorInfo()[2]}"
                 ];
             }
 
@@ -73,16 +73,16 @@ class PurchasesController implements CrudInterface
                            authorised_by=:authorised_by,receipt_no=:receipt_no,vat_no=:vat_no,
                            kra_pin_no=:kra_pin_no,product_names=:product_names,
                            amount_paid=:amount_paid WHERE id=:id");
-            $stmt->bindParam(":id", $data['id']);
-            $stmt->bindParam(":payee_name", $data['payee_name']);
-            $stmt->bindParam(":phone_number", $data['phone_number']);
-            $stmt->bindParam(":payment_description", $data['payment_description']);
-            $stmt->bindParam(":authorised_by", $data['authorised_by']);
-            $stmt->bindParam(":receipt_no", $data['receipt_no']);
-            $stmt->bindParam(":vat_no", $data['vat_no']);
-            $stmt->bindParam(":kra_pin_no", $data['kra_pin_no']);
-            $stmt->bindParam(":product_names", $data['product_names']);
-            $stmt->bindParam(":amount_paid", $data['amount_paid']);
+            $stmt->bindValue(":id", $data['id']);
+            $stmt->bindValue(":payee_name", $data['payee_name']);
+            $stmt->bindValue(":phone_number", $data['phone_number']);
+            $stmt->bindValue(":payment_description", $data['payment_description']);
+            $stmt->bindValue(":authorised_by", $data['authorised_by']);
+            $stmt->bindValue(":receipt_no", $data['receipt_no']);
+            $stmt->bindValue(":vat_no", $data['vat_no']);
+            $stmt->bindValue(":kra_pin_no", $data['kra_pin_no']);
+            $stmt->bindValue(":product_names", $data['product_names']);
+            $stmt->bindValue(":amount_paid", $data['amount_paid']);
 
             if ($stmt->execute()) {
                 $this->db->closeConnection();
@@ -93,7 +93,7 @@ class PurchasesController implements CrudInterface
             } else {
                 return [
                     "status_code" => 500,
-                    "message" => "Error occurred => {$stmt->errorInfo()}"
+                    "message" => "Error occurred => {$stmt->errorInfo()[2]}"
                 ];
             }
 
@@ -111,8 +111,9 @@ class PurchasesController implements CrudInterface
         try {
             $stmt = (new self)->conn
                 ->prepare("DELETE FROM purchases WHERE id=:id");
+            $stmt->bindParam(":id", $id);
 
-            if ($stmt->execute()) {
+            if ($stmt->execute() && $stmt->rowCount() > 0) {
                 (new self)->db->closeConnection();
 
                 return [
@@ -122,7 +123,7 @@ class PurchasesController implements CrudInterface
             } else {
                 return [
                     "status_code" => 500,
-                    "message" => "Error occurred => {$stmt->errorInfo()}"
+                    "message" => "Error occurred. No Matching record found"
                 ];
             }
 
@@ -140,6 +141,7 @@ class PurchasesController implements CrudInterface
         try {
             $stmt = (new self)->conn
                 ->prepare("SELECT * FROM purchases WHERE id=:id LIMIT 1");
+            $stmt->bindParam(":id", $id);
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
                 (new self)->db->closeConnection();
@@ -150,7 +152,7 @@ class PurchasesController implements CrudInterface
             } else {
                 return [
                     "status_code" => 500,
-                    "message" => "Error occurred => {$stmt->errorInfo()}"
+                    "message" => "No matching record data found"
                 ];
             }
 
@@ -178,7 +180,7 @@ class PurchasesController implements CrudInterface
             } else {
                 return [
                     "status_code" => 500,
-                    "message" => "Error occurred => {$stmt->errorInfo()}"
+                    "message" => "Error occurred => {$stmt->errorInfo()[2]}"
                 ];
             }
 
@@ -195,8 +197,8 @@ class PurchasesController implements CrudInterface
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("SELECT * FROM purchases WHERE  date_paid=:date_paid");
-            $stmt->bindParam(":date_paid", $date);
+                ->prepare("SELECT * FROM purchases WHERE  date(date_paid)=:date_paid");
+            $stmt->bindValue(":date_paid", $date);
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
 
@@ -209,7 +211,7 @@ class PurchasesController implements CrudInterface
             } else {
                 return [
                     "status_code" => 500,
-                    "message" => "Error occurred => {$stmt->errorInfo()}"
+                    "message" => "No matching record found"
                 ];
             }
 
