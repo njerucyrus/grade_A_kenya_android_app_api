@@ -170,7 +170,7 @@ class PurchasesController implements CrudInterface
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("SELECT * FROM purchases WHERE id=:id LIMIT 1");
+                ->prepare("SELECT * FROM purchases WHERE id=:id  LIMIT 1");
             $stmt->bindParam(":id", $id);
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
@@ -202,7 +202,7 @@ class PurchasesController implements CrudInterface
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("SELECT * FROM purchases WHERE  1 ORDER BY date_paid DESC");
+                ->prepare("SELECT * FROM purchases WHERE  is_archived=0 ORDER BY date_paid DESC");
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
                 (new self)->db->closeConnection();
@@ -213,7 +213,7 @@ class PurchasesController implements CrudInterface
             } else {
                 return [
                     "status_code" => 500,
-                    "message" => "Error occurred => {$stmt->errorInfo()[2]}"
+                    "message" => "No matching records"
                 ];
             }
 
@@ -234,7 +234,7 @@ class PurchasesController implements CrudInterface
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("SELECT * FROM purchases WHERE  DATE(date_paid)=:date_paid");
+                ->prepare("SELECT * FROM purchases WHERE  DATE(date_paid)=:date_paid AND is_archived=0");
             $stmt->bindValue(":date_paid", $date);
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
@@ -249,6 +249,127 @@ class PurchasesController implements CrudInterface
                 return [
                     "status_code" => 500,
                     "message" => "No matching record"
+                ];
+            }
+
+
+        } catch (\PDOException $e) {
+            return [
+                "status_code" => 500,
+                "message" => "Error occurred => {$e->getMessage()}"
+            ];
+        }
+    }
+
+    public static function search($query)
+    {
+        try {
+            $stmt = (new self)->conn
+                ->prepare("SELECT * FROM purchases WHERE is_archived=0 AND( 
+               DATE(date_paid)='" . $query . "' OR phone_number LIKE '%" . $query . "%'
+               OR payee_name LIKE '%" . $query . "%' OR receipt_no LIKE '%" . $query . "%'
+              OR authorised_by LIKE '%" . $query . "%' OR product_names LIKE '%" . $query . "%'
+              OR payment_description LIKE '%" . $query . "%')");
+
+            if ($stmt->execute() && $stmt->rowCount() > 0) {
+
+                (new self)->db->closeConnection();
+
+                return [
+                    "status_code" => 200,
+                    "data" => $stmt->fetchAll(\PDO::FETCH_ASSOC)
+                ];
+            } else {
+                return [
+                    "status_code" => 500,
+                    "message" => "No matching record"
+                ];
+            }
+
+
+        } catch (\PDOException $e) {
+            return [
+                "status_code" => 500,
+                "message" => "Error occurred => {$e->getMessage()}"
+            ];
+        }
+    }
+
+    public static function getArchives(){
+        try {
+            $stmt = (new self)->conn
+                ->prepare("SELECT * FROM purchases WHERE  is_archived=1");
+
+
+            if ($stmt->execute() && $stmt->rowCount() > 0) {
+
+                (new self)->db->closeConnection();
+
+                return [
+                    "status_code" => 200,
+                    "data" => $stmt->fetchAll(\PDO::FETCH_ASSOC)
+                ];
+            } else {
+                return [
+                    "status_code" => 500,
+                    "message" => "No matching record"
+                ];
+            }
+
+
+        } catch (\PDOException $e) {
+            return [
+                "status_code" => 500,
+                "message" => "Error occurred => {$e->getMessage()}"
+            ];
+        }
+    }
+
+    public static function addToArchive($id){
+        try {
+            $stmt = (new self)->conn->prepare("UPDATE purchases SET is_archived=1
+                                                        WHERE id=:id");
+            $stmt->bindValue(":id", $id);
+
+
+            if ($stmt->execute()) {
+                (new self)->db->closeConnection();
+                return [
+                    "status_code" => 201,
+                    "message" => "Transaction Updated Successfully"
+                ];
+            } else {
+                return [
+                    "status_code" => 500,
+                    "message" => "Error occurred => {$stmt->errorInfo()[2]}"
+                ];
+            }
+
+
+        } catch (\PDOException $e) {
+            return [
+                "status_code" => 500,
+                "message" => "Error occurred => {$e->getMessage()}"
+            ];
+        }
+    }
+    public static function removeArchive($id){
+        try {
+            $stmt = (new self)->conn->prepare("UPDATE purchases SET is_archived=0
+                                                        WHERE id=:id");
+            $stmt->bindValue(":id", $id);
+
+
+            if ($stmt->execute()) {
+                (new self)->db->closeConnection();
+                return [
+                    "status_code" => 201,
+                    "message" => "Transaction Updated Successfully"
+                ];
+            } else {
+                return [
+                    "status_code" => 500,
+                    "message" => "Error occurred => {$stmt->errorInfo()[2]}"
                 ];
             }
 

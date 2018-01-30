@@ -53,23 +53,32 @@ function create()
 function update()
 {
     global $data;
-
-    if (!empty($data)) {
-        $purchaseCtrl = new PurchasesController();
-
-        $data_array = [];
-        foreach ($data as $key => $value) {
-            $data_array[$key] = $value;
+    if (!empty($_REQUEST['action'])) {
+        if ($_REQUEST['action'] == 'archive' and !empty($_REQUEST['id'])) {
+            print_r(json_encode(PurchasesController::addToArchive($_REQUEST['id'])));
         }
-        print_r(json_encode($purchaseCtrl->update($data_array)));
-    } else {
+        elseif ($_REQUEST['action'] == 'remove_archive') {
+            print_r(json_encode(PurchasesController::removeArchive($_REQUEST['id'])));
+        }
 
-        print_r(json_encode([
-            "status" => 500,
-            "message" => "No json data received"
-        ]));
+        elseif (!empty($data) and $_REQUEST['action'] == 'update') {
+            $purchaseCtrl = new PurchasesController();
+
+            $data_array = [];
+            foreach ($data as $key => $value) {
+                $data_array[$key] = $value;
+            }
+            print_r(json_encode($purchaseCtrl->update($data_array)));
+        } else {
+
+            print_r(json_encode([
+                "status" => 500,
+                "message" => "No json data received"
+            ]));
+        }
     }
 }
+
 
 function read()
 {
@@ -91,6 +100,14 @@ function read()
             ]));
         }
 
+    }
+
+    if (!empty($_REQUEST['filter']) and $_REQUEST['filter'] == 'archives') {
+        print_r(json_encode(PurchasesController::getArchives()));
+    }
+
+    if (!empty($_REQUEST['query'])) {
+        print_r(json_encode(PurchasesController::search($_REQUEST['query'])));
     }
 }
 
