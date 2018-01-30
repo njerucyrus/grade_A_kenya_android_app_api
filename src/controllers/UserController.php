@@ -27,7 +27,7 @@ class UserController implements CrudInterface
     {
         try {
             $stmt = $this->conn
-                ->prepare("INSERT INTO grade_a_db.users(fullname, email, phone_number, password) 
+                ->prepare("INSERT INTO users(fullname, email, phone_number, password) 
                               VALUES (:fullname, :email, :phone_number, :password)");
 
             $stmt->bindValue(":fullname", $data['fullname']);
@@ -62,7 +62,7 @@ class UserController implements CrudInterface
     public function update($data)
     {
         try {
-            $stmt = $this->conn->prepare("UPDATE grade_a_db.users SET fullname =:fullname,
+            $stmt = $this->conn->prepare("UPDATE users SET fullname =:fullname,
                                           email=:email,phone_number=:phone_number WHERE id=:id");
             $stmt->bindValue(":id", $data['id']);
             $stmt->bindValue(":fullname", $data['fullname']);
@@ -96,7 +96,7 @@ class UserController implements CrudInterface
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("DELETE FROM grade_a_db.users WHERE id=:id");
+                ->prepare("DELETE FROM users WHERE id=:id");
             $stmt->bindParam(":id", $id);
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
@@ -126,7 +126,7 @@ class UserController implements CrudInterface
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("SELECT * FROM grade_a_db.users WHERE id=:id LIMIT 1");
+                ->prepare("SELECT * FROM users WHERE id=:id LIMIT 1");
             $stmt->bindParam(":id", $id);
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
@@ -156,7 +156,7 @@ class UserController implements CrudInterface
 
         try {
             $stmt = (new self)->conn
-                ->prepare("SELECT * FROM grade_a_db.users WHERE  1");
+                ->prepare("SELECT * FROM users WHERE  1");
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
                 (new self)->db->closeConnection();

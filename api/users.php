@@ -48,7 +48,7 @@ function create()
         }
 
         if (!empty($_REQUEST['action'] == 'login') and isset($_REQUEST['action'])) {
-            print_r(json_encode(UserController::authenticate($data['username'], $data['password'])));
+            print_r(json_encode(UserController::authenticate($data_array['username'], $data_array['password'])));
         }
 
         if (!empty($_REQUEST['action'] == 'change_password') and isset($_REQUEST['action'])) {

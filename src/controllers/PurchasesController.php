@@ -202,7 +202,7 @@ class PurchasesController implements CrudInterface
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("SELECT * FROM purchases WHERE  1");
+                ->prepare("SELECT * FROM purchases WHERE  1 ORDER BY date_paid DESC");
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
                 (new self)->db->closeConnection();

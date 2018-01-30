@@ -8,7 +8,6 @@
 
 namespace src\controllers;
 
-use src\db\DB;
 
 trait Auth
 {
@@ -16,8 +15,8 @@ trait Auth
     {
         try {
             $stmt = (new self)->conn
-                ->prepare("SELECT * FROM grade_a_db.users WHERE phone_number=:username OR email=:username LIMIT 1");
-            $stmt->bindParam(":username", $username);
+                ->prepare("SELECT * FROM users WHERE phone_number='$username' OR email='$username' LIMIT 1");
+
 
             $stmt->execute();
             $response = [];
@@ -27,35 +26,38 @@ trait Auth
                 $row = $stmt->fetch(\PDO::FETCH_ASSOC);
                 if (password_verify($password, $row['password'])) {
                     $response = [
-                        "status" => 201,
+                        "status_code" => 201,
                         "message" => "Login Successful",
                         "data" =>$row
                     ];
                 } else {
                     $response = [
-                        "status" => 500,
-                        "message" => "Invalid Credentials supplied",
-                        "data" => [
-                            "username" => "",
-                            "user_type" => ""
-                        ]
+                        "status_code" => 500,
+                        "message" => "Invalid Login Credentials supplied",
+                        "data"=>[
+				"username"=>$username,
+				 "password"=>$password
+
+				]
+
                     ];
                 }
             } else {
                 $response = [
-                    "status" => 500,
-                    "message" => "Invalid.. Credentials supplied",
-                    "data" => [
-                        "username" => "",
-                        "user_type" => ""
-                    ]
+                    "status_code" => 500,
+                    "message" => "Invalid Login Credentials supplied",
+                    "data"=>[
+				"username"=>$username,
+				"password"=>$password
+
+			]
                 ];
             }
             return $response;
 
         } catch (\PDOException $e) {
             return [
-                "status" => "error",
+                "status_code" => 500,
                 "message" => "Exception Error {$e->getMessage()}"
             ];
         }
@@ -71,11 +73,11 @@ trait Auth
         $response = null;
         $auth = self::authenticate($data['username'], $data['old_password']);
 
-        if ($auth['status'] == "success") {
+        if ($auth['status_code'] == 201) {
             $response = self::updatePassword($data['username'], $data['new_password']);
         } else {
             $response = [
-                "status" => 500,
+                "status_code" => 500,
                 "message" => "Invalid old credentials please try again latter"
             ];
         }
@@ -95,18 +97,18 @@ trait Auth
             $query = $stmt->execute();
             if ($query) {
                 return [
-                    "status" => 201,
+                    "status_code" => 201,
                     "message" => "Password Changed successfully Successfully "
                 ];
             } else {
                 return [
-                    "status" => 500,
+                    "status_code" => 500,
                     "message" => "Error Occurred While update your password {$stmt->errorInfo()[2]}"
                 ];
             }
         } catch (\PDOException $e) {
             return [
-                "status" => 500,
+                "status_code" => 500,
                 "message" => "Exception Error {$e->getMessage()}"
             ];
         }
