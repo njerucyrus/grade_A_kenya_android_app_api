@@ -29,34 +29,42 @@ class DB
     /**
      * @var
      */
-    private $conn;
 
-    /**
-     * @return null|\PDO
-     */
-    public function connect(){
-        try{
+    private $_db;
+    static $_instance;
 
-            $this->conn = new \PDO(
-                "mysql:host={$this->databaseHost};
-                 dbname={$this->databaseName}",
-                $this->databaseUser,
-                $this->password
-            );
+    public function __construct()
+    {
 
-            return $this->conn;
+        $this->_db = new \PDO(
+            "mysql:host={$this->databaseHost};
+             dbname={$this->databaseName}",
+            $this->databaseUser,
+            $this->password
+        );
 
-        } catch (\PDOException $e){
-            echo $e->getMessage();
-            return null;
-        }
+        $this->_db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
     }
 
-    /**
-     * @return bool
-     */
-    public function closeConnection(){
-        $this->conn = null;
-        return true;
+    public function __clone(){}
+
+    public function connect()
+    {
+        return $this->_db;
+    }
+
+    public function closeConnection()
+    {
+        $this->_db = null;
+    }
+
+
+    public static function getInstance()
+    {
+        if (!(self::$_instance instanceof self)) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
     }
 }

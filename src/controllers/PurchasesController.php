@@ -19,20 +19,20 @@ class PurchasesController implements CrudInterface
     /**
      * @var null|\PDO
      */
-    protected $conn;
+    private $conn;
 
     /**
      * @var DB
      */
-    protected $db;
+    private $db;
 
     /**
      * PurchasesController constructor.
      */
     public function __construct()
     {
-        $this->db = new DB();
-        $this->conn = $this->db->connect();
+        $this->db = DB::getInstance();
+        $this->conn = DB::getInstance()->connect();
     }
 
 
@@ -46,9 +46,9 @@ class PurchasesController implements CrudInterface
             $stmt = $this->conn
                 ->prepare("INSERT INTO purchases(payee_name, phone_number,
                           payment_description, authorised_by,receipt_no, vat_no,
-                          kra_pin_no,product_names, amount_paid) VALUES (:payee_name,
-                           :phone_number,:payment_description, :authorised_by,:receipt_no,
-                           :vat_no,:kra_pin_no,:product_names, :amount_paid)");
+                          kra_pin_no,product_names, amount_paid, mpesa_code) VALUES (:payee_name,
+                           :phone_number, :payment_description, :authorised_by, :receipt_no,
+                           :vat_no, :kra_pin_no, :product_names, :amount_paid,   :mpesa_code)");
 
             $stmt->bindValue(":payee_name", $data['payee_name']);
             $stmt->bindValue(":phone_number", $data['phone_number']);
@@ -59,12 +59,14 @@ class PurchasesController implements CrudInterface
             $stmt->bindValue(":kra_pin_no", $data['kra_pin_no']);
             $stmt->bindValue(":product_names", $data['product_names']);
             $stmt->bindValue(":amount_paid", $data['amount_paid']);
+            $stmt->bindValue(":mpesa_code", $data['mpesa_code']);
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
                 $this->db->closeConnection();
                 return [
                     "status_code" => 201,
-                    "message" => "Transaction Recorded Successfully"
+                    "message" => "Transaction Recorded Successfully",
+                    "data" =>self::getId($this->conn->lastInsertId())["data"]
                 ];
 
             } else {
@@ -94,7 +96,7 @@ class PurchasesController implements CrudInterface
                            phone_number=:phone_number,payment_description=:payment_description, 
                            authorised_by=:authorised_by,receipt_no=:receipt_no,vat_no=:vat_no,
                            kra_pin_no=:kra_pin_no,product_names=:product_names,
-                           amount_paid=:amount_paid WHERE id=:id");
+                           amount_paid=:amount_paid, mpesa_code=:mpesa_code WHERE id=:id");
             $stmt->bindValue(":id", $data['id']);
             $stmt->bindValue(":payee_name", $data['payee_name']);
             $stmt->bindValue(":phone_number", $data['phone_number']);
@@ -105,6 +107,7 @@ class PurchasesController implements CrudInterface
             $stmt->bindValue(":kra_pin_no", $data['kra_pin_no']);
             $stmt->bindValue(":product_names", $data['product_names']);
             $stmt->bindValue(":amount_paid", $data['amount_paid']);
+            $stmt->bindValue(":mpesa_code", $data['mpesa_code']);
 
             if ($stmt->execute()) {
                 $this->db->closeConnection();
@@ -269,7 +272,7 @@ class PurchasesController implements CrudInterface
                DATE(date_paid)='" . $query . "' OR phone_number LIKE '%" . $query . "%'
                OR payee_name LIKE '%" . $query . "%' OR receipt_no LIKE '%" . $query . "%'
               OR authorised_by LIKE '%" . $query . "%' OR product_names LIKE '%" . $query . "%'
-              OR payment_description LIKE '%" . $query . "%')");
+              OR payment_description LIKE '%" . $query . "%' OR mpesa_code LIKE '%".$query."%')");
 
             if ($stmt->execute() && $stmt->rowCount() > 0) {
 

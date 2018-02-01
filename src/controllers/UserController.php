@@ -19,8 +19,8 @@ class UserController implements CrudInterface
 
     public function __construct()
     {
-        $this->db = new DB();
-        $this->conn = $this->db->connect();
+        $this->db = DB::getInstance();
+        $this->conn = DB::getInstance()->connect();
     }
 
     public function create($data)
